@@ -1,0 +1,277 @@
+--[1]
+
+select * from store
+
+limit 10;
+
+--[2]
+
+SELECT COUNT(DISTINCT(order_id))
+
+FROM store;
+
+select count(DISTINCT(customer_id))
+
+from store;
+
+--[3]
+
+select customer_id, customer_email, customer_phone
+
+from store
+
+where customer_id = 1;
+
+--[4]
+
+select item_1_id, item_1_name, item_1_price
+
+from store
+
+where item_1_id = 4;
+
+--[5]
+
+create table customer as
+
+select distinct customer_id, customer_phone, customer_email
+
+from store;
+
+--[6]
+
+ALTER TABLE customer
+
+ADD PRIMARY KEY (customer_id);
+
+--[7]
+
+CREATE TABLE items AS
+
+SELECT DISTINCT item_1_id as item_id, item_1_name as name, item_1_price as price
+
+FROM store
+
+UNION
+
+SELECT DISTINCT item_2_id as item_id, item_2_name as name, item_2_price as price
+
+FROM store
+
+WHERE item_2_id IS NOT NULL
+
+UNION
+
+SELECT DISTINCT item_3_id as item_id, item_3_name as name, item_3_price as price
+
+FROM store
+
+WHERE item_3_id IS NOT NULL;
+
+--[8]
+
+ALTER TABLE items
+
+ADD PRIMARY KEY (item_id);
+
+--[9]
+
+CREATE TABLE orders_items AS
+
+SELECT order_id, item_1_id as item_id
+
+FROM store
+
+UNION ALL
+
+SELECT order_id, item_2_id as item_id
+
+FROM store
+
+WHERE item_2_id IS NOT NULL
+
+UNION ALL
+
+SELECT order_id, item_3_id as item_id
+
+FROM store
+
+WHERE item_3_id IS NOT NULL;
+
+--[10]
+
+create table orders as
+
+select distinct order_id, order_date, customer_id
+
+from store;
+
+--[11]
+
+ALTER TABLE orders
+
+ADD PRIMARY KEY (order_id);
+
+--[12]
+
+ALTER TABLE orders
+
+ADD FOREIGN KEY (customer_id)
+
+REFERENCES customer(customer_id);
+
+--[13]
+
+ALTER TABLE orders_items
+
+ADD FOREIGN KEY (item_id)
+
+REFERENCES items(item_id);
+
+ALTER TABLE orders_items
+
+ADD FOREIGN KEY (order_id)
+
+REFERENCES orders(order_id);
+
+--Query your Databases!
+
+--[14]
+
+select customer_email, order_date from store
+
+where order_date > '2019-07-25'
+
+limit 10;
+
+--[15]
+
+SELECT customer_email
+
+FROM customer, orders, items, orders_items
+
+WHERE customer.customer_id = orders.customer_id
+
+AND
+
+order_date > '2019-07-25' limit 10;
+
+--[16]
+
+WITH all_items AS (
+
+SELECT item_1_id as item_id
+
+FROM store
+
+UNION ALL
+
+SELECT item_2_id as item_id
+
+FROM store
+
+WHERE item_2_id IS NOT NULL
+
+UNION ALL
+
+SELECT item_3_id as item_id
+
+FROM store
+
+WHERE item_3_id IS NOT NULL
+
+)
+
+SELECT item_id, COUNT(*)
+
+FROM all_items
+
+GROUP BY item_id
+
+limit 10;
+
+--[17]
+
+SELECT item_id, COUNT(order_id)
+
+FROM orders_items
+
+GROUP BY item_id
+
+limit 10;
+
+--[18]
+
+select count(DISTINCT(customer_id))
+
+from store
+
+where order_id > 1;
+
+WITH all_items AS (
+
+SELECT item_1_name as item_name
+
+FROM store
+
+UNION ALL
+
+SELECT item_2_name as item_name
+
+FROM store
+
+WHERE item_2_name IS NOT NULL
+
+UNION ALL
+
+SELECT item_3_name as item_name
+
+FROM store
+
+WHERE item_3_name IS NOT NULL
+
+)
+
+SELECT item_name, COUNT(*)
+
+FROM all_items
+
+where item_name = 'lamp'
+
+GROUP BY item_name
+
+limit 10;
+
+WITH all_items AS (
+
+SELECT item_1_name as item_name
+
+FROM store
+
+UNION ALL
+
+SELECT item_2_name as item_name
+
+FROM store
+
+WHERE item_2_name IS NOT NULL
+
+UNION ALL
+
+SELECT item_3_name as item_name
+
+FROM store
+
+WHERE item_3_name IS NOT NULL
+
+)
+
+SELECT item_name, COUNT(*)
+
+FROM all_items
+
+where item_name = 'chair'
+
+GROUP BY item_name
+
+limit 10;
